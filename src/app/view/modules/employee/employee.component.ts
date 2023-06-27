@@ -213,8 +213,6 @@ export class EmployeeComponent {
   }
 
 
-
-
   loadTable(query: string) {
 
     this.es.getAll(query)
