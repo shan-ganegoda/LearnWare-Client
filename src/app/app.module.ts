@@ -33,6 +33,7 @@ import {DashboardComponent} from "./view/dashboard/dashboard.component";
 import {MatChipsModule} from "@angular/material/chips";
 import {DatePipe} from "@angular/common";
 import { CourseComponent } from './view/modules/course/course.component';
+import { ClassComponent } from './view/modules/class/class.component';
 
 
 @NgModule({
@@ -47,6 +48,7 @@ import { CourseComponent } from './view/modules/course/course.component';
     ConfirmComponent,
     ArrearsbyprogramComponent,
     CourseComponent,
+    ClassComponent,
   ],
   imports: [
     BrowserModule,
