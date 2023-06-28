@@ -7,7 +7,9 @@ import {HomeComponent} from "./view/home/home.component";
 import {DashboardComponent} from "./view/dashboard/dashboard.component";
 import {ArrearsbyprogramComponent} from "./report/view/arrearsbyprogram/arrearsbyprogram.component";
 import {CourseComponent} from "./view/modules/course/course.component";
-import {BatchComponent} from "./view/modules/batch/batch.component";
+import {ClassComponent} from "./view/modules/class/class.component";
+
+
 
 const routes: Routes = [
   {path: "login", component: LoginComponent},
@@ -21,7 +23,8 @@ const routes: Routes = [
       {path: "reportarrears", component: ArrearsbyprogramComponent},
       {path: "dashboard", component: DashboardComponent},
       {path: "course", component: CourseComponent},
-      {path:"batch",component:BatchComponent}
+      {path: "class", component: ClassComponent}
+
     ]
   }];
 

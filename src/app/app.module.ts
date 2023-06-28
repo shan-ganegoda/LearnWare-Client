@@ -33,7 +33,8 @@ import {DashboardComponent} from "./view/dashboard/dashboard.component";
 import {MatChipsModule} from "@angular/material/chips";
 import {DatePipe} from "@angular/common";
 import { CourseComponent } from './view/modules/course/course.component';
-import { BatchComponent } from './view/modules/batch/batch.component';
+import { ClassComponent } from './view/modules/class/class.component';
+
 
 
 @NgModule({
@@ -48,6 +49,7 @@ import { BatchComponent } from './view/modules/batch/batch.component';
     ConfirmComponent,
     ArrearsbyprogramComponent,
     CourseComponent,
+    ClassComponent,
     BatchComponent,
   ],
   imports: [

@@ -20,7 +20,8 @@ export class Batch {
 
   constructor(
     id: number, course: Course,day:Day,number:string,name:string,dostart:string,doend:string,
-  tostart:string,tofinish:string,employeeByCordinatorId:Employee,description:Text,batchstatus:Batchstatus
+    tostart:string,tofinish:string,employeeByCordinatorId:Employee,description:Text,batchstatus:Batchstatus
+
   ){
 
     this.id = id;

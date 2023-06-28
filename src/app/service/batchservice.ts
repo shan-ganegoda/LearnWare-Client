@@ -8,7 +8,9 @@ import {Batch} from "../entity/batch";
 })
 export class Batchservice {
 
- constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
+
+
 
   async getAll(query:string): Promise<Array<Batch>> {
     const bathces = await this.http.get<Array<Batch>>('http://localhost:8080/batches'+query).toPromise();
@@ -19,8 +21,9 @@ export class Batchservice {
   }
 
   async add(batch:Batch): Promise<[]|undefined> {
-   // employee.number='43567';
-   return  this.http.post<[]>('http://localhost:8080/batches',batch).toPromise();
+    // employee.number='43567';
+    return  this.http.post<[]>('http://localhost:8080/batches',batch).toPromise();
+
   }
 
   async update(batch:Batch): Promise<[]|undefined> {
