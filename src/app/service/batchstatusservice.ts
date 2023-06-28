@@ -8,7 +8,9 @@ import {Batchstatus} from "../entity/batchstatus";
 })
 export class Batchstatusservice {
 
+
   constructor(private http: HttpClient) { }
+
 
   async getAllList(): Promise<Array<Batchstatus>> {
     const batchstatuses = await this.http.get<Array<Batchstatus>>('http://localhost:8080/batchstatuses/list').toPromise();

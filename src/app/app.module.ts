@@ -36,6 +36,7 @@ import { CourseComponent } from './view/modules/course/course.component';
 import { ClassComponent } from './view/modules/class/class.component';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -49,6 +50,7 @@ import { ClassComponent } from './view/modules/class/class.component';
     ArrearsbyprogramComponent,
     CourseComponent,
     ClassComponent,
+    BatchComponent,
   ],
   imports: [
     BrowserModule,
