@@ -26,11 +26,6 @@ import {DatePipe} from "@angular/common";
 
 export class EmployeeComponent {
 
-
-  invalidInputHandler() {
-    // some error handling
-  }
-
   columns: string[] = ['number', 'callingname', 'gender', 'designation', 'fullname', 'modi'];
   headers: string[] = ['Number', 'Calling Name', 'Gender', 'Designation', 'Full Name', 'Modification'];
   binders: string[] = ['number', 'callingname', 'gender.name', 'designation.name', 'fullname', 'getModi()'];
@@ -177,7 +172,7 @@ export class EmployeeComponent {
       control.valueChanges.subscribe(value => {
             // @ts-ignore
             if (controlName == "dobirth" || controlName == "doassignment")
-              value = this.dp.transform(new Date(value), 'yyyy-MM-dd');
+                value = this.dp.transform(new Date(value), 'yyyy-MM-dd');
 
             if (this.oldemployee != undefined && control.valid) {
               // @ts-ignore
@@ -195,7 +190,6 @@ export class EmployeeComponent {
       }
 
     this.enableButtons(true,false,false);
-    this.loadForm();
 
   }
 
@@ -205,14 +199,6 @@ export class EmployeeComponent {
     this.enaupd=upd;
     this.enadel=del;
   }
-
-
-
-  loadForm() {
-    console.log("Initila Photo-"+JSON.stringify(this.employee));
-  }
-
-
 
 
   loadTable(query: string) {
@@ -277,6 +263,7 @@ export class EmployeeComponent {
     if (query != "") query = query.replace(/^./, "?")
 
     this.loadTable(query);
+    console.log(query);
 
   }
 
@@ -343,8 +330,6 @@ export class EmployeeComponent {
       empdata = empdata + "<br>Callingname is : " + this.employee.callingname;
       console.log(this.employee.doassignment);
 
-      console.log("33333333333333333333333333");
-
       const confirm = this.dg.open(ConfirmComponent, {
         width: '500px',
         data: {
@@ -408,6 +393,7 @@ export class EmployeeComponent {
   getErrors(): string {
 
     let errors: string = "";
+
     for (const controlName in this.form.controls) {
       const control = this.form.controls[controlName];
       if (control.errors) {
@@ -429,7 +415,6 @@ export class EmployeeComponent {
 
     this.selectedrow=employee;
 
-
     this.employee = JSON.parse(JSON.stringify(employee));
     this.oldemployee = JSON.parse(JSON.stringify(employee));
 
@@ -440,6 +425,7 @@ export class EmployeeComponent {
       this.clearImage();
     }
     this.employee.photo = "";
+
     //@ts-ignore
     this.employee.gender = this.genders.find(g => g.id === this.employee.gender.id);
     //@ts-ignore
@@ -453,8 +439,8 @@ export class EmployeeComponent {
   }
 
 
-
   getUpdates(): string {
+
     let updates: string = "";
     for (const controlName in this.form.controls) {
       const control = this.form.controls[controlName];
@@ -464,7 +450,6 @@ export class EmployeeComponent {
     }
     return updates;
   }
-
 
 
   update() {

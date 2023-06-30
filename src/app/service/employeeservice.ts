@@ -17,6 +17,15 @@ export class EmployeeService {
     return employees;
   }
 
+  async getAllListNameId(): Promise<Array<Employee>> {
+
+    const employees = await this.http.get<Array<Employee>>('http://localhost:8080/employees/list').toPromise();
+    if(employees == undefined){
+      return [];
+    }
+    return employees;
+  }
+
   async add(employee:Employee): Promise<[]|undefined> {
    // employee.number='43567';
    return  this.http.post<[]>('http://localhost:8080/employees', employee).toPromise();

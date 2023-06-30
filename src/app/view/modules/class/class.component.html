@@ -6,8 +6,90 @@
         <mat-card-title>Class Detail</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content>
+      <mat-card-content id="employeeform">
 
+        <mat-form  [formGroup]="form" >
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date Of Class</mat-label>
+            <input matInput [matDatepicker]="doclass" formControlName="doclass">
+            <mat-datepicker-toggle matIconSuffix [for]="doclass"></mat-datepicker-toggle>
+            <mat-datepicker #doclass></mat-datepicker>
+          </mat-form-field>
+
+
+          <mat-form-field appearance="outline">
+            <mat-label>Time Of Start</mat-label>
+            <input type="time" matInput formControlName="tostart">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Time Of End</mat-label>
+            <input type="time" matInput formControlName="toend">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date Of Define</mat-label>
+            <input matInput [matDatepicker]="dodefine" formControlName="dodefine">
+            <mat-datepicker-toggle matIconSuffix [for]="dodefine"></mat-datepicker-toggle>
+            <mat-datepicker #dodefine></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Batch</mat-label>
+            <mat-select formControlName="batch">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let batch of batches" [value]="batch">{{batch.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Lesson</mat-label>
+            <mat-select formControlName="lessonByLessonId">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let lesson of lessons" [value]="lesson">{{lesson.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teacher</mat-label>
+            <mat-select formControlName="teacher">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let teacher of teachers" [value]="teacher">{{teacher.callingname}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Class Status</mat-label>
+            <mat-select formControlName="classstatus">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let classstatus of classstatuses" [value]="classstatus">{{classstatus.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Employee</mat-label>
+            <mat-select formControlName="employee">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let employee of employees" [value]="employee">{{employee.callingname}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+
+
+          <div id="butpanel">
+            <button mat-raised-button (click)="add()" [disabled]="!enaadd">Add</button>
+            <button mat-raised-button>Clear</button>
+            <button mat-raised-button (click)=null [disabled]="!enaupd">Update</button>
+            <button mat-raised-button (click)=null [disabled]="!enadel">Delete</button>
+          </div>
+
+        </mat-form>
       </mat-card-content>
 
 

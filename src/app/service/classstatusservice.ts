@@ -12,7 +12,7 @@ export class ClassstatusService {
  constructor(private http: HttpClient) { }
 
   async getAll(): Promise<Array<Classstatus>> {
-    const classstatuses = await this.http.get<Array<Classstatus>>('http://localhost:8080/classstatus/list').toPromise();
+    const classstatuses = await this.http.get<Array<Classstatus>>('http://localhost:8080/classstatus').toPromise();
     if(classstatuses == undefined){
       return [];
     }

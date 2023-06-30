@@ -12,7 +12,16 @@ export class LessonService {
 
  constructor(private http: HttpClient) { }
 
-  async getAll(): Promise<Array<Lesson>> {
+  async getAll(query:string): Promise<Array<Lesson>> {
+
+    const lessons = await this.http.get<Array<Lesson>>('http://localhost:8080/lessons'+query).toPromise();
+    if(lessons == undefined){
+      return [];
+    }
+    return lessons;
+  }
+
+  async getAllListNameId(): Promise<Array<Lesson>> {
 
     const lessons = await this.http.get<Array<Lesson>>('http://localhost:8080/lessons/list').toPromise();
     if(lessons == undefined){

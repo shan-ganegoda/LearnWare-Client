@@ -33,3 +33,7 @@ mat-card-title{
 .mat-row:hover {
   background-color: inherit!important;
 }
+
+#employeeform{
+  padding-top: 20px;
+}
