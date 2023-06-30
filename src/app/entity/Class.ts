@@ -23,7 +23,7 @@ export class Class {
 
   public dodefine !: string;
 
-  public Batch !: Batch;
+  public batch !: Batch;
 
   public lessonByLessonId !: Lesson;
 
@@ -35,7 +35,7 @@ export class Class {
 
 
   constructor(id:number,doclass:string,tostart:string,toend:string,description:string,
-              dodefine:string,Batch:Batch,lessonByLessonId:Lesson,teacher:Employee,
+              dodefine:string,batch:Batch,lessonByLessonId:Lesson,teacher:Employee,
               classstatus:Class,employee:Employee) {
 
     this.id = id;
@@ -44,7 +44,7 @@ export class Class {
     this.toend = toend;
     this.description = description;
     this.dodefine = dodefine;
-    this.Batch = Batch;
+    this.batch = batch;
     this.lessonByLessonId = lessonByLessonId;
     this.teacher = teacher;
     this.classstatus = classstatus;
