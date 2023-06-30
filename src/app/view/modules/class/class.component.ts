@@ -8,13 +8,16 @@ import {LessonService} from "../../../service/lessonservice";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {UiAssist} from "../../../util/ui/ui.assist";
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {Employee} from "../../../entity/employee";
 import {EmployeeService} from "../../../service/employeeservice";
 import {Batch} from "../../../entity/batch";
 import {Batchservice} from "../../../service/batchservice";
 import {ConfirmComponent} from "../../../util/dialog/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
+import {MessageComponent} from "../../../util/dialog/message/message.component";
+import {RegexService} from "../../../service/regexservice";
+import {DatePipe} from "@angular/common";
 
 
 @Component({
@@ -33,15 +36,21 @@ export class ClassComponent implements OnInit{
 
   classes: Array<Class> = [];
   lessons: Array<Lesson> = [];
-  teachers: Array<Employee> = []
+  teachers: Array<Employee> = [];
   classstatuses: Array<Classstatus> = [];
   batches: Array<Batch> = [];
+  employees: Array<Employee> = [];
+
+  class !: Class;
+  oldclass !: Class;
 
   public csearch!: FormGroup;
   public ssearch!: FormGroup;
   public form!: FormGroup;
 
   imageurl: string = '';
+
+  regexes: any;
 
   data!: MatTableDataSource<Class>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -50,13 +59,19 @@ export class ClassComponent implements OnInit{
 
   selectedrow: any;
 
-  constructor(private  fb:FormBuilder,
+  enaadd:boolean = false;
+  enaupd:boolean = false;
+  enadel:boolean = false;
+
+  constructor(private fb:FormBuilder,
               private cs:ClassService,
               private ct:ClassstatusService,
               private ls:LessonService,
               private es:EmployeeService,
               private bs:Batchservice,
-              private dg:MatDialog
+              private dg:MatDialog,
+              private rs:RegexService,
+              private dp:DatePipe
 
   ) {
 
@@ -74,6 +89,19 @@ export class ClassComponent implements OnInit{
       "ssteacher": new FormControl()
     });
 
+    this.form = this.fb.group({
+      "doclass": new FormControl('', [Validators.required]),
+      "tostart": new FormControl('', [Validators.required]),
+      "toend": new FormControl('', [Validators.required]),
+      "description": new FormControl('', [Validators.required]),
+      "dodefine": new FormControl('', [Validators.required]),
+      "batch": new FormControl('', [Validators.required]),
+      "lessonByLessonId": new FormControl('', [Validators.required]),
+      "teacher": new FormControl('', [Validators.required]),
+      "classstatus": new FormControl('', [Validators.required]),
+      "employee": new FormControl('',[Validators.required] ),
+    }, {updateOn: 'change'});
+
     this.uiassist = new UiAssist(this);
 
   }
@@ -90,16 +118,25 @@ export class ClassComponent implements OnInit{
       this.classstatuses = stts;
     });
 
-    this.ls.getAll().then((lsn:Lesson[])=>{
+    this.ls.getAllListNameId().then((lsn:Lesson[])=>{
       this.lessons = lsn;
     });
 
-    this.es.getAll("").then((emp:Employee[])=>{
-      this.teachers = emp;
+    this.es.getAllListNameId().then((tec:Employee[])=>{
+      this.teachers = tec;
     });
 
-    this.bs.getAll("").then((bat:Batch[])=>{
+    this.bs.getAllListNameId().then((bat:Batch[])=>{
       this.batches = bat;
+    });
+
+    this.es.getAllListNameId().then((emp:Employee[])=>{
+      this.employees = emp;
+    });
+
+    this.rs.get('class').then((regs: []) => {
+      this.regexes = regs;
+      this.createForm();
     });
 
   }
@@ -124,6 +161,46 @@ export class ClassComponent implements OnInit{
         this.data = new MatTableDataSource(this.classes);
         this.data.paginator = this.paginator;
       });
+
+  }
+
+  createForm(){
+    this.form.controls['doclass'].setValidators([Validators.required]);
+    this.form.controls['tostart'].setValidators([Validators.required]);
+    this.form.controls['toend'].setValidators([Validators.required]);
+    this.form.controls['description'].setValidators([Validators.required, Validators.pattern(this.regexes['description']['regex'])]);
+    this.form.controls['dodefine'].setValidators([Validators.required]);
+    this.form.controls['batch'].setValidators([Validators.required]);
+    this.form.controls['lessonByLessonId'].setValidators([Validators.required]);
+    this.form.controls['teacher'].setValidators([Validators.required]);
+    this.form.controls['classstatus'].setValidators([Validators.required]);
+    this.form.controls['employee'].setValidators([Validators.required]);
+
+    Object.values(this.form.controls).forEach( control => { control.markAsTouched(); } );
+
+    for (const controlName in this.form.controls) {
+      const control = this.form.controls[controlName];
+      control.valueChanges.subscribe(value => {
+          // @ts-ignore
+          if (controlName == "doclass" || controlName == "dodefine")
+            value = this.dp.transform(new Date(value), 'yyyy-MM-dd');
+
+          if (this.oldclass != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.class[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
+
+    this.enableButtons(true,false,false);
 
   }
 
@@ -179,6 +256,121 @@ export class ClassComponent implements OnInit{
 
   fillForm(){
 
+  }
+
+  add() {
+
+    let errors = this.getErrors();
+
+    if (errors != "") {
+      const errmsg = this.dg.open(MessageComponent, {
+        width: '500px',
+        data: {heading: "Errors - Class Add ", message: "You have following Errors <br> " + errors}
+      });
+      errmsg.afterClosed().subscribe(async result => {
+        if (!result) {
+          return;
+        }
+      });
+    } else {
+
+      this.class = this.form.getRawValue();
+
+      //Covert Time To SQL Time
+      this.class.tostart = this.class.tostart+":00";
+      this.class.toend = this.class.toend+":00";
+
+      let clsdata: string = "";
+
+      clsdata = clsdata + "<br>Teacher Name is : " + this.class.doclass;
+      clsdata = clsdata + "<br>Time Of Start is : " + this.class.tostart;
+      clsdata = clsdata + "<br>To Start in : " + this.class.dodefine;
+      console.log(this.class.tostart);
+      console.log("1111111111");
+
+      const confirm = this.dg.open(ConfirmComponent, {
+        width: '500px',
+        data: {
+          heading: "Confirmation - Class Add",
+          message: "Are you sure to Add the folowing Class? <br> <br>" + clsdata
+        }
+      });
+
+      let addstatus: boolean = false;
+      let addmessage: string = "Server Not Found";
+      console.log("1111111111");
+
+      confirm.afterClosed().subscribe(async result => {
+        if (result) {
+          // console.log("EmployeeService.add(emp)");
+
+          this.cs.add(this.class).then((responce: [] | undefined) => {
+            //console.log("Res-" + responce);
+            //console.log("Un-" + responce == undefined);
+            if (responce != undefined) { // @ts-ignore
+              console.log("Add-" + responce['id'] + "-" + responce['url'] + "-" + (responce['errors'] == ""));
+              console.log("1111111111");
+              // @ts-ignore
+              addstatus = responce['errors'] == "";
+              console.log("Add Sta-" + addstatus);
+              if (!addstatus) { // @ts-ignore
+                addmessage = responce['errors'];
+              }
+            } else {
+              console.log("undefined");
+              addstatus = false;
+              addmessage = "Content Not Found"
+            }
+          }).finally(() => {
+
+            if (addstatus) {
+              addmessage = "Successfully Saved";
+              this.form.reset();
+              //this.clearImage();
+              Object.values(this.form.controls).forEach(control => {
+                control.markAsTouched();
+              });
+              this.loadTable("");
+            }
+
+            const stsmsg = this.dg.open(MessageComponent, {
+              width: '500px',
+              data: {heading: "Status -Class Add", message: addmessage}
+            });
+
+            stsmsg.afterClosed().subscribe(async result => {
+              if (!result) {
+                return;
+              }
+            });
+          });
+        }
+      });
+    }
+  }
+  enableButtons(add:boolean, upd:boolean, del:boolean){
+    this.enaadd=add;
+    this.enaupd=upd;
+    this.enadel=del;
+  }
+
+  getErrors(): string {
+
+    let errors: string = "";
+
+    for (const controlName in this.form.controls) {
+      const control = this.form.controls[controlName];
+      if (control.errors) {
+
+        if (this.regexes[controlName] != undefined) {
+          errors = errors + "<br>" + this.regexes[controlName]['message'];
+        } else {
+          errors = errors + "<br>Invalid " + controlName;
+        }
+      }
+    }
+
+    return errors;
   }
 
 

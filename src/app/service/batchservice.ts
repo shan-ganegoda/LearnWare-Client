@@ -20,6 +20,16 @@ export class Batchservice {
     return bathces;
   }
 
+  async getAllListNameId(): Promise<Array<Batch>> {
+    const bathces = await this.http.get<Array<Batch>>('http://localhost:8080/batches/list').toPromise();
+    if(bathces == undefined){
+      return [];
+    }
+    return bathces;
+  }
+
+
+
   async add(batch:Batch): Promise<[]|undefined> {
     // employee.number='43567';
     return  this.http.post<[]>('http://localhost:8080/batches',batch).toPromise();

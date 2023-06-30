@@ -19,4 +19,9 @@ export class ClassService {
     return classes;
   }
 
+  async add(clazz:Class): Promise<[]|undefined> {
+    return  this.http.post<[]>('http://localhost:8080/classes', clazz).toPromise();
+    console.log(clazz);
+  }
+
 }

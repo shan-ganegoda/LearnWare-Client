@@ -21,6 +21,7 @@
             <input matInput formControlName="fullname">
           </mat-form-field>
 
+
          <mat-form-field appearance="outline">
             <mat-label>Calling Name</mat-label>
             <input matInput formControlName="callingname">
@@ -147,7 +148,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Designation</mat-label>
             <mat-select formControlName="ssdesignation">
-              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option [value]="null" selected >Not Selected</mat-option>
               <mat-option *ngFor="let designation of designations" [value]="designation.id">{{designation.name}}</mat-option>
             </mat-select>
           </mat-form-field>

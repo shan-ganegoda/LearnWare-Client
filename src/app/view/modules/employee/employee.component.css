@@ -122,8 +122,5 @@ mat-form-field .ng-invalid:not(form) {
 .form-field-dirt{ color:orange!important; }
 */
 
-mat-mdc-text-field-wrapper mdc-text-field:focus{
-color: #a3ff00;
-}mat-mdc-text-field-wrapper mdc-text-field:valid{
-color: #a3ff00;
-}
+
+
