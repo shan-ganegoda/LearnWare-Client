@@ -34,6 +34,7 @@ import {MatChipsModule} from "@angular/material/chips";
 import {DatePipe} from "@angular/common";
 import { CourseComponent } from './view/modules/course/course.component';
 import { BatchComponent } from './view/modules/batch/batch.component';
+import { ClassreviewComponent } from './view/modules/classreview/classreview.component';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { BatchComponent } from './view/modules/batch/batch.component';
     ArrearsbyprogramComponent,
     CourseComponent,
     BatchComponent,
+    ClassreviewComponent,
   ],
   imports: [
     BrowserModule,
