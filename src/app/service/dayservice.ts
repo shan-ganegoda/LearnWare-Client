@@ -11,6 +11,7 @@ export class Dayservice {
 
   constructor(private http: HttpClient) { }
 
+
   async getAllList(): Promise<Array<Day>> {
     const days = await this.http.get<Array<Day>>('http://localhost:8080/days/list').toPromise();
     if(days == undefined){
