@@ -42,6 +42,7 @@ export class ClassComponent implements OnInit{
   employees: Array<Employee> = [];
 
   class !: Class;
+
   oldclass !: Class;
 
   public csearch!: FormGroup;
@@ -151,6 +152,8 @@ export class ClassComponent implements OnInit{
     this.cs.getAll(query)
       .then((cls: Class[]) => {
         this.classes = cls;
+        // console.log( this.classes);
+
         this.imageurl = 'assets/fullfilled.png';
       })
       .catch((error) => {
@@ -209,7 +212,7 @@ export class ClassComponent implements OnInit{
     const cserchdata = this.csearch.getRawValue();
 
     this.data.filterPredicate = (clazz: Class, filter: string) => {
-      return (cserchdata.csbatch == null || clazz.Batch.name.toLowerCase().includes(cserchdata.csbatch)) &&
+      return (cserchdata.csbatch == null || clazz.batch.name.toLowerCase().includes(cserchdata.csbatch)) &&
         (cserchdata.cslesson == null || clazz.lessonByLessonId.name.toLowerCase().includes(cserchdata.cslesson)) &&
         (cserchdata.csteacher == null || clazz.teacher.callingname.toLowerCase().includes(cserchdata.csteacher)) &&
         (cserchdata.cstostart == null || clazz.tostart.toLowerCase().includes(cserchdata.cstostart)) &&
@@ -254,9 +257,6 @@ export class ClassComponent implements OnInit{
     });
   }
 
-  fillForm(){
-
-  }
 
   add() {
 
@@ -372,6 +372,176 @@ export class ClassComponent implements OnInit{
 
     return errors;
   }
+
+  fillForm(clazz: Class) {
+
+    this.enableButtons(false,true,true);
+
+    this.selectedrow= clazz;
+
+    this.class = JSON.parse(JSON.stringify(clazz));
+
+    this.oldclass = JSON.parse(JSON.stringify(clazz));
+
+
+    //@ts-ignore
+    this.class.batch= this.batches.find(b => b.id === this.class.batch.id);
+    //@ts-ignore
+    this.class.lessonByLessonId = this.lessons.find(l => l.id === this.class.lessonByLessonId.id);
+    //@ts-ignore
+    this.class.teacher = this.teachers.find(t => t.id === this.class.teacher.id);
+    //@ts-ignore
+    this.class.classstatus = this.classstatuses.find(cs => cs.id === this.class.classstatus.id);
+    //@ts-ignore
+    this.class.employee = this.employees.find(e => e.id === this.class.employee.id);
+
+    this.form.patchValue(this.class);
+    this.form.markAsPristine();
+
+  }
+
+  getUpdates(): string {
+
+    let updates: string = "";
+    for (const controlName in this.form.controls) {
+      const control = this.form.controls[controlName];
+      if (control.dirty) {
+        updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
+      }
+    }
+    return updates;
+  }
+
+  update() {
+
+    let errors = this.getErrors();
+
+    if (errors != "") {
+
+      const errmsg = this.dg.open(MessageComponent, {
+        width: '500px',
+        data: {heading: "Errors - Class Update ", message: "You have following Errors <br> " + errors}
+      });
+      errmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+    } else {
+
+      let updates: string = this.getUpdates();
+
+      if (updates != "") {
+
+        let updstatus: boolean = false;
+        let updmessage: string = "Server Not Found";
+
+        const confirm = this.dg.open(ConfirmComponent, {
+          width: '500px',
+          data: {
+            heading: "Confirmation - Class Update",
+            message: "Are you sure to Save folowing Updates? <br> <br>" + updates
+          }
+        });
+        confirm.afterClosed().subscribe(async result => {
+          if (result) {
+            //console.log("EmployeeService.update()");
+            this.class = this.form.getRawValue();
+            // if (this.form.controls['photo'].dirty) this.employee.photo = btoa(this.imageempurl);
+            // else this.employee.photo = this.oldemployee.photo;
+            this.class.id = this.oldclass.id;
+
+            this.cs.update(this.class).then((responce: [] | undefined) => {
+              //console.log("Res-" + responce);
+              // console.log("Un-" + responce == undefined);
+              if (responce != undefined) { // @ts-ignore
+                //console.log("Add-" + responce['id'] + "-" + responce['url'] + "-" + (responce['errors'] == ""));
+                // @ts-ignore
+                updstatus = responce['errors'] == "";
+                //console.log("Upd Sta-" + updstatus);
+                if (!updstatus) { // @ts-ignore
+                  updmessage = responce['errors'];
+                }
+              } else {
+                //console.log("undefined");
+                updstatus = false;
+                updmessage = "Content Not Found"
+              }
+            } ).finally(() => {
+              if (updstatus) {
+                updmessage = "Successfully Updated";
+                this.form.reset();
+                // this.clearImage();
+                Object.values(this.form.controls).forEach(control => { control.markAsTouched(); });
+                this.loadTable("");
+              }
+
+              const stsmsg = this.dg.open(MessageComponent, {
+                width: '500px',
+                data: {heading: "Status -Class Add", message: updmessage}
+              });
+              stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+            });
+          }
+        });
+      }
+      else {
+
+        const updmsg = this.dg.open(MessageComponent, {
+          width: '500px',
+          data: {heading: "Confirmation - Class Update", message: "Nothing Changed"}
+        });
+        updmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+      }
+    }
+
+
+  }
+
+  delete() {
+
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {
+        heading: "Confirmation - Employee Delete",
+        message: "Are you sure to Delete folowing Class? <br> <br>" + this.class.lessonByLessonId.name
+      }
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        let delstatus: boolean = false;
+        let delmessage: string = "Server Not Found";
+
+        this.cs.delete(this.class.id).then((responce: [] | undefined) => {
+
+          if (responce != undefined) { // @ts-ignore
+            delstatus = responce['errors'] == "";
+            if (!delstatus) { // @ts-ignore
+              delmessage = responce['errors'];
+            }
+          } else {
+            delstatus = false;
+            delmessage = "Content Not Found"
+          }
+        } ).finally(() => {
+          if (delstatus) {
+            delmessage = "Successfully Deleted";
+            this.form.reset();
+            Object.values(this.form.controls).forEach(control => { control.markAsTouched(); });
+            this.loadTable("");
+          }
+
+          const stsmsg = this.dg.open(MessageComponent, {
+            width: '500px',
+            data: {heading: "Status - Employee Delete ", message: delmessage}
+          });
+          stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+        });
+      }
+    });
+  }
+
 
 
 }

@@ -21,7 +21,15 @@ export class ClassService {
 
   async add(clazz:Class): Promise<[]|undefined> {
     return  this.http.post<[]>('http://localhost:8080/classes', clazz).toPromise();
-    console.log(clazz);
+ }
+
+  async update(clazz:Class): Promise<[]|undefined>{
+    return this.http.put<[]>('http://localhost:8080/classes',clazz).toPromise();
   }
+
+  async delete(id:number): Promise<[]|undefined> {
+    return  this.http.delete<[]>('http://localhost:8080/classes/' + id).toPromise();
+  }
+
 
 }

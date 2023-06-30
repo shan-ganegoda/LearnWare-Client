@@ -85,8 +85,8 @@
           <div id="butpanel">
             <button mat-raised-button (click)="add()" [disabled]="!enaadd">Add</button>
             <button mat-raised-button>Clear</button>
-            <button mat-raised-button (click)=null [disabled]="!enaupd">Update</button>
-            <button mat-raised-button (click)=null [disabled]="!enadel">Delete</button>
+            <button mat-raised-button (click)=update() [disabled]="!enaupd">Update</button>
+            <button mat-raised-button (click)=delete() [disabled]="!enadel">Delete</button>
           </div>
 
         </mat-form>
@@ -137,7 +137,7 @@
   </mat-grid-tile>
 
 
-  <mat-grid-tile [colspan]="8" [rowspan]="6">
+  <mat-grid-tile [colspan]="8" [rowspan]="10">
     <mat-card>
       <mat-card-header>
         <mat-card-title>Course Table</mat-card-title>
@@ -166,7 +166,7 @@
 
           <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
           <mat-header-row *matHeaderRowDef="cscolumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columns;" (click)="fillForm()" [ngClass]="{'selected-row': row === selectedrow}"></mat-row>
+          <mat-row *matRowDef="let row; columns: columns;" (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"></mat-row>
 
         </mat-table>
 
