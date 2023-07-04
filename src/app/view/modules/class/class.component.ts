@@ -140,6 +140,8 @@ export class ClassComponent implements OnInit{
       this.createForm();
     });
 
+
+
   }
 
   createView(){

@@ -13,19 +13,19 @@ export class Batchservice {
 
 
   async getAll(query:string): Promise<Array<Batch>> {
-    const bathces = await this.http.get<Array<Batch>>('http://localhost:8080/batches'+query).toPromise();
-    if(bathces == undefined){
+    const batches = await this.http.get<Array<Batch>>('http://localhost:8080/batches'+query).toPromise();
+    if(batches == undefined){
       return [];
     }
-    return bathces;
+    return batches;
   }
 
   async getAllListNameId(): Promise<Array<Batch>> {
-    const bathces = await this.http.get<Array<Batch>>('http://localhost:8080/batches/list').toPromise();
-    if(bathces == undefined){
+    const batches = await this.http.get<Array<Batch>>('http://localhost:8080/batches/list').toPromise();
+    if(batches == undefined){
       return [];
     }
-    return bathces;
+    return batches;
   }
 
 
