@@ -1,4 +1,4 @@
-<mat-grid-list [cols]="12" rowHeight="4rem">
+<mat-grid-list [cols]="12" rowHeight="6em">
 
   <mat-grid-tile [colspan]="4" [rowspan]="10">
     <mat-card>
@@ -6,7 +6,103 @@
         <mat-card-title>Batch Detail</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content></mat-card-content>
+      <mat-card-content id="batchform">
+
+        <mat-form  [formGroup]="batchform" >
+
+          <!--Course Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Course</mat-label>
+            <mat-select formControlName="course">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let course of courses" [value]="course">{{course.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!--Day Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Day</mat-label>
+            <mat-select formControlName="day">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let day of days" [value]="day">{{day.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!--Number Input-->
+          <mat-form-field appearance="outline">
+            <mat-label>Number</mat-label>
+            <input matInput formControlName="number">
+          </mat-form-field>
+
+          <!--Name Input-->
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <!--DOS Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Date Of Start</mat-label>
+            <input matInput [matDatepicker]="dostart" formControlName="dostart">
+            <mat-datepicker-toggle matIconSuffix [for]="dostart"></mat-datepicker-toggle>
+            <mat-datepicker #dostart></mat-datepicker>
+          </mat-form-field>
+
+          <!--DOE Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Date Of End</mat-label>
+            <input matInput [matDatepicker]="doend" formControlName="doend">
+            <mat-datepicker-toggle matIconSuffix [for]="doend"></mat-datepicker-toggle>
+            <mat-datepicker #doend></mat-datepicker>
+          </mat-form-field>
+
+          <!--TOS Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Time Of Start</mat-label>
+            <input type="time" matInput formControlName="tostart">
+          </mat-form-field>
+
+          <!--TOE Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Time Of Finish</mat-label>
+            <input type="time" matInput formControlName="tofinish">
+          </mat-form-field>
+
+          <!--CoordinatorID Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Coordinator</mat-label>
+            <mat-select formControlName="employee">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let employee of employees" [value]="employee">{{employee.callingname}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!--Description Input-->
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description">
+          </mat-form-field>
+
+          <!--BatchStatus Select-->
+          <mat-form-field appearance="outline">
+            <mat-label>Batch Status</mat-label>
+            <mat-select formControlName="batchstatus">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let batchstatus of batchstatuses" [value]="batchstatus">{{batchstatus.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+
+          <!--Button Group(Add,Update,Delete and Clear)-->
+          <div id="butpanel">
+            <button mat-raised-button (click)="add()" [disabled]="!enaadd">Add</button>
+            <button mat-raised-button>Clear</button>
+            <button mat-raised-button (click)=null [disabled]="!enaupd">Update</button>
+            <button mat-raised-button (click)=null [disabled]="!enadel">Delete</button>
+          </div>
+
+        </mat-form>
+      </mat-card-content>
 
     </mat-card>
   </mat-grid-tile>

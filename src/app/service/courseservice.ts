@@ -19,6 +19,14 @@ export class CourseService {
     return courses;
   }
 
+  async getAllByList(query:string): Promise<Array<Course>> {
+    const courses = await this.http.get<Array<Course>>('http://localhost:8080/courses/list'+query).toPromise();
+    if(courses == undefined){
+      return [];
+    }
+    return courses;
+  }
+
   async add(course:Course): Promise<[]|undefined> {
    return  this.http.post<[]>('http://localhost:8080/employees', course).toPromise();
   }
