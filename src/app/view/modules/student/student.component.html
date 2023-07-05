@@ -105,71 +105,72 @@
 
       <mat-card-content>
 
-<!--        <mat-form [formGroup]="ssearch">-->
+        <mat-form [formGroup]="ssearch">
+
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="ssname">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Mobile</mat-label>
+            <input matInput formControlName="ssmobile">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="ssstatus">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let status of studentstatuses" [value]="status.id">{{status.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+                      <div>
+                        <button mat-raised-button color="primary" (click)="btnSearchMc()"><mat-icon>search</mat-icon> Search </button>
+                        <button mat-raised-button color="primary" (click)="btnSearchClearMc()"><mat-icon>reorder</mat-icon> Clear Search </button>
+                      </div>
+
+                    </mat-form>
+
+                  </mat-card-content>
+
+                </mat-card>
+              </mat-grid-tile>
 
 
-<!--          <mat-form-field appearance="outline">-->
-<!--            <mat-label>Batch</mat-label>-->
-<!--            <mat-select formControlName="ssbatch">-->
-<!--              <mat-option [value]="null" selected>Not Selected</mat-option>-->
-<!--              <mat-option *ngFor="let batch of batches" [value]="batch.id">{{batch.name}}</mat-option>-->
-<!--            </mat-select>-->
-<!--          </mat-form-field>-->
+              <mat-grid-tile [colspan]="8" [rowspan]="10">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title>Student Table</mat-card-title>
+                    <div id="loading">
+                      <img [src]="imageurl">
+                    </div>
+                  </mat-card-header>
 
-<!--          <mat-form-field appearance="outline">-->
-<!--            <mat-label>Teacher</mat-label>-->
-<!--            <mat-select formControlName="ssteacher">-->
-<!--              <mat-option [value]="null" selected>Not Selected</mat-option>-->
-<!--              <mat-option *ngFor="let teacher of teachers" [value]="teacher.id">{{teacher.callingname}}</mat-option>-->
-<!--            </mat-select>-->
-<!--          </mat-form-field>-->
+                  <mat-card-content>
 
-<!--          <div>-->
-<!--            <button mat-raised-button color="primary" (click)="btnSearchMc()"><mat-icon>search</mat-icon> Search </button>-->
-<!--            <button mat-raised-button color="primary" (click)="btnSearchClearMc()"><mat-icon>reorder</mat-icon> Clear Search </button>-->
-<!--          </div>-->
+                    <mat-table [dataSource]="data">
 
-<!--        </mat-form>-->
+                      <ng-container *ngFor="let column of columns;let i = index;" [matColumnDef]="column">
+                        <mat-header-cell *matHeaderCellDef> {{headers[i]}} </mat-header-cell>
+                        <mat-cell *matCellDef="let element">{{ uiassist.getProperty(element, binders[i]) }} </mat-cell>
+                      </ng-container>
 
-      </mat-card-content>
+                      <ng-container *ngFor="let cscolumn of cscolumns;let i = index;" [matColumnDef]="cscolumn">
+                        <mat-header-cell *matHeaderCellDef>
+                          <mat-form [formGroup]="csearch" class="csearch">
+                            <mat-form-field appearance="outline">
+                              <mat-label>{{csprompts[i]}}</mat-label>
+                              <input matInput [formControlName]="cscolumn" (keyup)="filterTable()">
+                            </mat-form-field>
+                          </mat-form>
+                        </mat-header-cell>
+                      </ng-container>
 
-    </mat-card>
-  </mat-grid-tile>
-
-
-  <mat-grid-tile [colspan]="8" [rowspan]="10">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Student Table</mat-card-title>
-        <div id="loading">
-          <img [src]="imageurl">
-        </div>
-      </mat-card-header>
-
-      <mat-card-content>
-
-        <mat-table [dataSource]="data">
-
-          <ng-container *ngFor="let column of columns;let i = index;" [matColumnDef]="column">
-            <mat-header-cell *matHeaderCellDef> {{headers[i]}} </mat-header-cell>
-            <mat-cell *matCellDef="let element">{{ uiassist.getProperty(element, binders[i]) }} </mat-cell>
-          </ng-container>
-
-          <ng-container *ngFor="let cscolumn of cscolumns;let i = index;" [matColumnDef]="cscolumn">
-            <mat-header-cell *matHeaderCellDef>
-              <mat-form [formGroup]="csearch" class="csearch">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{csprompts[i]}}</mat-label>
-                  <input matInput [formControlName]="cscolumn" (keyup)="filterTable()">
-                </mat-form-field>
-              </mat-form>
-            </mat-header-cell>
-          </ng-container>
-
-          <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
-          <mat-header-row *matHeaderRowDef="cscolumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columns;" ></mat-row>
-<!--          (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"-->
+                      <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+                      <mat-header-row *matHeaderRowDef="cscolumns"></mat-header-row>
+                      <mat-row *matRowDef="let row; columns: columns;" ></mat-row>
+            <!--          (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"-->
 
         </mat-table>
 

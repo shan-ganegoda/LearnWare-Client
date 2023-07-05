@@ -6,6 +6,11 @@ import {Student} from "../../../entity/student";
 import {UiAssist} from "../../../util/ui/ui.assist";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {StudentService} from "../../../service/studentservice";
+import {Studentstatus} from "../../../entity/studentstatus";
+import {Classstatus} from "../../../entity/Classstatus";
+import {StudentstatusService} from "../../../service/studentstatusservice";
+import {ConfirmComponent} from "../../../util/dialog/confirm/confirm.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-student',
@@ -29,13 +34,16 @@ export class StudentComponent implements OnInit{
   uiassist: UiAssist;
 
   students !: Array<Student>;
+  studentstatuses !: Array<Studentstatus>;
 
   public csearch!: FormGroup;
   public ssearch!: FormGroup;
   public form!: FormGroup;
 
   constructor(private fb:FormBuilder,
-              private ss:StudentService
+              private ss:StudentService,
+              private sss:StudentstatusService,
+              private dg:MatDialog
               ) {
 
     this.csearch = this.fb.group({
@@ -44,6 +52,12 @@ export class StudentComponent implements OnInit{
       "csguardianname": new FormControl(),
       "csdob": new FormControl(),
       "csstudentstatus": new FormControl(),
+    });
+
+    this.ssearch = this.fb.group({
+      "ssname": new FormControl(),
+      "ssmobile": new FormControl(),
+      "ssstatus": new FormControl()
     });
 
     this.uiassist = new UiAssist(this);
@@ -56,6 +70,10 @@ export class StudentComponent implements OnInit{
 
   initialize(){
     this.createView();
+
+    this.sss.getAllList().then((stts:Studentstatus[])=>{
+      this.studentstatuses = stts;
+    });
   }
 
   createView(){
@@ -93,6 +111,41 @@ export class StudentComponent implements OnInit{
 
     this.data.filter = 'xx';
 
+  }
+
+  btnSearchMc(): void {
+
+    const sserchdata = this.ssearch.getRawValue();
+
+
+    let name = sserchdata.ssname;
+    let mobile = sserchdata.ssmobile;
+    let statusid = sserchdata.ssstatus;
+
+    let query = "";
+
+    if (name != null) query = query + "&name=" + name;
+    if (mobile != null) query = query + "&mobile=" + mobile;
+    if (statusid != null) query = query + "&statusid=" + statusid;
+
+    if (query != "") query = query.replace(/^./, "?")
+
+    this.loadTable(query);
+
+  }
+
+  btnSearchClearMc(){
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {heading: "Search Clear", message: "Are you sure to Clear the Search?"}
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        this.ssearch.reset();
+        this.loadTable("");
+      }
+    });
   }
 
 }
