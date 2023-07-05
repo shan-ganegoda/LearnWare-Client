@@ -35,6 +35,7 @@ import {DatePipe} from "@angular/common";
 import { CourseComponent } from './view/modules/course/course.component';
 import { ClassComponent } from './view/modules/class/class.component';
 import {BatchComponent} from "./view/modules/batch/batch.component";
+import { StudentComponent } from './view/modules/student/student.component';
 
 
 
@@ -52,6 +53,7 @@ import {BatchComponent} from "./view/modules/batch/batch.component";
     CourseComponent,
     ClassComponent,
     BatchComponent,
+    StudentComponent,
   ],
   imports: [
     BrowserModule,

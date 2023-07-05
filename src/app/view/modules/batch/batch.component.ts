@@ -488,4 +488,49 @@ export class BatchComponent implements OnInit{
 
   }
 
+  delete() {
+
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {
+        heading: "Confirmation - Employee Delete",
+        message: "Are you sure to Delete folowing Batch? <br> <br>" + this.batch.name
+      }
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        let delstatus: boolean = false;
+        let delmessage: string = "Server Not Found";
+
+        this.cs.delete(this.batch.id).then((responce: [] | undefined) => {
+
+          if (responce != undefined) { // @ts-ignore
+            delstatus = responce['errors'] == "";
+            if (!delstatus) { // @ts-ignore
+              delmessage = responce['errors'];
+            }
+          } else {
+            delstatus = false;
+            delmessage = "Content Not Found"
+          }
+        } ).finally(() => {
+          if (delstatus) {
+            delmessage = "Successfully Deleted";
+            this.batchform.reset();
+            Object.values(this.batchform.controls).forEach(control => { control.markAsTouched(); });
+            this.loadTable("");
+          }
+
+          const stsmsg = this.dg.open(MessageComponent, {
+            width: '500px',
+            data: {heading: "Status - Batch Delete ", message: delmessage}
+          });
+          stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+        });
+      }
+    });
+  }
+
 }
