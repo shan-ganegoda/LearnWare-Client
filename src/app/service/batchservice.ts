@@ -13,9 +13,11 @@ export class Batchservice {
 
 
   async getAll(query:string): Promise<Array<Batch>> {
+    console.log(query);
     const batches = await this.http.get<Array<Batch>>('http://localhost:8080/batches'+query).toPromise();
     if(batches == undefined){
       return [];
+
     }
     return batches;
   }

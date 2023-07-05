@@ -18,6 +18,7 @@ import {DatePipe} from "@angular/common";
 import {MessageComponent} from "../../../util/dialog/message/message.component";
 import {ConfirmComponent} from "../../../util/dialog/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
+import {Class} from "../../../entity/Class";
 
 @Component({
   selector: 'app-batch',
@@ -26,15 +27,14 @@ import {MatDialog} from "@angular/material/dialog";
 })
 export class BatchComponent implements OnInit{
 
-  csearch!:FormGroup;
 
-  columns: string[] = ['number', 'course', 'name', 'cordinator', 'batchstatus'];
-  headers: string[] = ['Number', 'Course', 'Batch Name', 'Cordinator', 'Batch Status'];
+
+  columns: string[] = ['number', 'course', 'name', 'employee', 'batchstatus'];
+  headers: string[] = ['Number', 'Course', 'Batch Name', 'Coordinator', 'Batch Status'];
   binders: string[] = ['number', 'course.name', 'name', 'employee.callingname', 'batchstatus.name'];
 
-  cscolumns: string[] = ['cscourse', 'csnumber', 'csname', 'cscordinator', 'csbatchstatus'];
-  csprompts: string[] = ['Search by Course', 'Search by Number', 'Search by Name',
-                          'Search by Cordinator', 'Search by Status'];
+  cscolumns: string[] = ['csnumber', 'cscourse', 'csname', 'cscordinator', 'csbatchstatus'];
+  csprompts: string[] = ['Search by Number', 'Search by Number', 'Search by Name','Search by Cordinator', 'Search by Status'];
 
 
   data!: MatTableDataSource<Batch>;
@@ -56,6 +56,8 @@ export class BatchComponent implements OnInit{
   uiassist: UiAssist;
 
   public batchform!: FormGroup;
+  public csearch!: FormGroup;
+  public ssearch!: FormGroup;
 
   enaadd:boolean = false;
   enaupd:boolean = false;
@@ -81,6 +83,12 @@ export class BatchComponent implements OnInit{
       "csname": new FormControl(),
       "cscordinator": new FormControl(),
       "csbatchstatus": new FormControl(),
+    });
+
+    this.ssearch = this.fb.group({
+      "ssnumber": new FormControl(),
+      "ssname": new FormControl(),
+      "ssstatus": new FormControl()
     });
 
     this.batchform = this.fb.group({
@@ -144,8 +152,7 @@ export class BatchComponent implements OnInit{
 
   loadTable(query: string) {
 
-    this.bs.getAll(query)
-      .then((bch: Batch[]) => {
+    this.bs.getAll(query).then((bch: Batch[]) => {
         this.batches = bch;
         this.imageurl = 'assets/fullfilled.png';
       })
@@ -158,6 +165,22 @@ export class BatchComponent implements OnInit{
         //console.log(JSON.stringify(this.batches));
         this.data.paginator = this.paginator;
       });
+
+  }
+
+  filterTable(): void {
+
+    const cserchdata = this.csearch.getRawValue();
+
+    this.data.filterPredicate = (batch: Batch, filter: string) => {
+      return (cserchdata.cscourse == null || batch.course.name.toLowerCase().includes(cserchdata.cscourse)) &&
+        (cserchdata.csnumber == null || batch.number.toLowerCase().includes(cserchdata.csnumber)) &&
+        (cserchdata.csname == null || batch.name.toLowerCase().includes(cserchdata.csname)) &&
+        (cserchdata.cscordinator == null || batch.employee.callingname.toLowerCase().includes(cserchdata.cscordinator)) &&
+        (cserchdata.csbatchstatus == null || batch.batchstatus.name.toLowerCase().includes(cserchdata.csbatchstatus));
+    };
+
+    this.data.filter = 'xx';
 
   }
 
@@ -313,6 +336,40 @@ export class BatchComponent implements OnInit{
     }
 
     return errors;
+  }
+
+  btnSearchMc(): void {
+
+    const ssearchdata = this.ssearch.getRawValue();
+
+
+    let snumber = ssearchdata.ssnumber;
+    let name = ssearchdata.ssname;
+    let statusid = ssearchdata.ssstatus;
+
+    let query = "";
+
+    if (snumber != null) query = query + "&number=" + snumber;
+    if (name != null) query = query + "&name=" + name;
+    if (statusid != null) query = query + "&statusid=" + statusid;
+
+    if (query != "") query = query.replace(/^./, "?")
+
+    this.loadTable(query);
+
+  }
+  btnSearchClearMc(){
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {heading: "Search Clear", message: "Are you sure to Clear the Search?"}
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        this.ssearch.reset();
+        this.loadTable("");
+      }
+    });
   }
 
 }

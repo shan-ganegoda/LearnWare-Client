@@ -14,13 +14,13 @@ export class Batch {
   public doend!:string;
   public tostart!:string;
   public tofinish!:string;
-  public employeeByCordinatorId!:Employee;
+  public employee!:Employee;
   public description!:Text;
   public batchstatus!:Batchstatus;
 
   constructor(
     id: number, course: Course,day:Day,number:string,name:string,dostart:string,doend:string,
-    tostart:string,tofinish:string,employeeByCordinatorId:Employee,description:Text,batchstatus:Batchstatus
+    tostart:string,tofinish:string,employee:Employee,description:Text,batchstatus:Batchstatus
 
   ){
 
@@ -33,7 +33,7 @@ export class Batch {
     this.doend = doend;
     this.tostart = tostart;
     this.tofinish = tofinish;
-    this.employeeByCordinatorId = employeeByCordinatorId;
+    this.employee = employee;
     this.description = description;
     this.batchstatus = batchstatus;
   }
