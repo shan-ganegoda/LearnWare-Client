@@ -18,6 +18,7 @@ import {DatePipe} from "@angular/common";
 import {MessageComponent} from "../../../util/dialog/message/message.component";
 import {ConfirmComponent} from "../../../util/dialog/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
+import {Class} from "../../../entity/Class";
 
 @Component({
   selector: 'app-batch',
@@ -26,15 +27,14 @@ import {MatDialog} from "@angular/material/dialog";
 })
 export class BatchComponent implements OnInit{
 
-  csearch!:FormGroup;
 
-  columns: string[] = ['number', 'course', 'name', 'cordinator', 'batchstatus'];
-  headers: string[] = ['Number', 'Course', 'Batch Name', 'Cordinator', 'Batch Status'];
+
+  columns: string[] = ['number', 'course', 'name', 'employee', 'batchstatus'];
+  headers: string[] = ['Number', 'Course', 'Batch Name', 'Coordinator', 'Batch Status'];
   binders: string[] = ['number', 'course.name', 'name', 'employee.callingname', 'batchstatus.name'];
 
-  cscolumns: string[] = ['cscourse', 'csnumber', 'csname', 'cscordinator', 'csbatchstatus'];
-  csprompts: string[] = ['Search by Course', 'Search by Number', 'Search by Name',
-                          'Search by Cordinator', 'Search by Status'];
+  cscolumns: string[] = ['csnumber', 'cscourse', 'csname', 'cscordinator', 'csbatchstatus'];
+  csprompts: string[] = ['Search by Number', 'Search by Number', 'Search by Name','Search by Cordinator', 'Search by Status'];
 
 
   data!: MatTableDataSource<Batch>;
@@ -56,10 +56,14 @@ export class BatchComponent implements OnInit{
   uiassist: UiAssist;
 
   public batchform!: FormGroup;
+  public csearch!: FormGroup;
+  public ssearch!: FormGroup;
 
   enaadd:boolean = false;
   enaupd:boolean = false;
   enadel:boolean = false;
+
+  selectedrow: any;
 
   constructor(
     private fb:FormBuilder,
@@ -81,6 +85,12 @@ export class BatchComponent implements OnInit{
       "csname": new FormControl(),
       "cscordinator": new FormControl(),
       "csbatchstatus": new FormControl(),
+    });
+
+    this.ssearch = this.fb.group({
+      "ssnumber": new FormControl(),
+      "ssname": new FormControl(),
+      "ssstatus": new FormControl()
     });
 
     this.batchform = this.fb.group({
@@ -144,8 +154,7 @@ export class BatchComponent implements OnInit{
 
   loadTable(query: string) {
 
-    this.bs.getAll(query)
-      .then((bch: Batch[]) => {
+    this.bs.getAll(query).then((bch: Batch[]) => {
         this.batches = bch;
         this.imageurl = 'assets/fullfilled.png';
       })
@@ -158,6 +167,22 @@ export class BatchComponent implements OnInit{
         //console.log(JSON.stringify(this.batches));
         this.data.paginator = this.paginator;
       });
+
+  }
+
+  filterTable(): void {
+
+    const cserchdata = this.csearch.getRawValue();
+
+    this.data.filterPredicate = (batch: Batch, filter: string) => {
+      return (cserchdata.cscourse == null || batch.course.name.toLowerCase().includes(cserchdata.cscourse)) &&
+        (cserchdata.csnumber == null || batch.number.toLowerCase().includes(cserchdata.csnumber)) &&
+        (cserchdata.csname == null || batch.name.toLowerCase().includes(cserchdata.csname)) &&
+        (cserchdata.cscordinator == null || batch.employee.callingname.toLowerCase().includes(cserchdata.cscordinator)) &&
+        (cserchdata.csbatchstatus == null || batch.batchstatus.name.toLowerCase().includes(cserchdata.csbatchstatus));
+    };
+
+    this.data.filter = 'xx';
 
   }
 
@@ -313,6 +338,199 @@ export class BatchComponent implements OnInit{
     }
 
     return errors;
+  }
+
+  btnSearchMc(): void {
+
+    const ssearchdata = this.ssearch.getRawValue();
+
+
+    let snumber = ssearchdata.ssnumber;
+    let name = ssearchdata.ssname;
+    let statusid = ssearchdata.ssstatus;
+
+    let query = "";
+
+    if (snumber != null) query = query + "&number=" + snumber;
+    if (name != null) query = query + "&name=" + name;
+    if (statusid != null) query = query + "&statusid=" + statusid;
+
+    if (query != "") query = query.replace(/^./, "?")
+
+    this.loadTable(query);
+
+  }
+  btnSearchClearMc(){
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {heading: "Search Clear", message: "Are you sure to Clear the Search?"}
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        this.ssearch.reset();
+        this.loadTable("");
+      }
+    });
+  }
+
+  fillForm(batch: Batch) {
+
+    this.enableButtons(false,true,true);
+
+    this.selectedrow= batch;
+
+    this.batch = JSON.parse(JSON.stringify(batch));
+
+    this.oldbatch = JSON.parse(JSON.stringify(batch));
+
+
+    //@ts-ignore
+    this.batch.course= this.courses.find(c => c.id === this.batch.course.id);
+    //@ts-ignore
+    this.batch.day = this.days.find(d => d.id === this.batch.day.id);
+    //@ts-ignore
+    this.batch.employee = this.employees.find(e => e.id === this.batch.employee.id);
+    //@ts-ignore
+    this.batch.batchstatus = this.batchstatuses.find(bs => bs.id === this.batch.batchstatus.id);
+
+    this.batchform.patchValue(this.batch);
+    this.batchform.markAsPristine();
+
+  }
+
+  getUpdates(): string {
+
+    let updates: string = "";
+    for (const controlName in this.batchform.controls) {
+      const control = this.batchform.controls[controlName];
+      if (control.dirty) {
+        updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
+      }
+    }
+    return updates;
+  }
+
+  update() {
+
+    let errors = this.getErrors();
+
+    if (errors != "") {
+
+      const errmsg = this.dg.open(MessageComponent, {
+        width: '500px',
+        data: {heading: "Errors - Class Update ", message: "You have following Errors <br> " + errors}
+      });
+      errmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+    } else {
+
+      let updates: string = this.getUpdates();
+
+      if (updates != "") {
+
+        let updstatus: boolean = false;
+        let updmessage: string = "Server Not Found";
+
+        const confirm = this.dg.open(ConfirmComponent, {
+          width: '500px',
+          data: {
+            heading: "Confirmation - Class Update",
+            message: "Are you sure to Save folowing Updates? <br> <br>" + updates
+          }
+        });
+        confirm.afterClosed().subscribe(async result => {
+          if (result) {
+            this.batch = this.batchform.getRawValue();
+            this.batch.id = this.oldbatch.id;
+
+            this.bs.update(this.batch).then((responce: [] | undefined) => {
+              if (responce != undefined) { // @ts-ignore
+                updstatus = responce['errors'] == "";
+                //console.log("Upd Sta-" + updstatus);
+                if (!updstatus) { // @ts-ignore
+                  updmessage = responce['errors'];
+                }
+              } else {
+                //console.log("undefined");
+                updstatus = false;
+                updmessage = "Content Not Found"
+              }
+            } ).finally(() => {
+              if (updstatus) {
+                updmessage = "Successfully Updated";
+                this.batchform.reset();
+                Object.values(this.batchform.controls).forEach(control => { control.markAsTouched(); });
+                this.loadTable("");
+              }
+
+              const stsmsg = this.dg.open(MessageComponent, {
+                width: '500px',
+                data: {heading: "Status -Batch Add", message: updmessage}
+              });
+              stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+            });
+          }
+        });
+      }
+      else {
+
+        const updmsg = this.dg.open(MessageComponent, {
+          width: '500px',
+          data: {heading: "Confirmation - Batch Update", message: "Nothing Changed"}
+        });
+        updmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+      }
+    }
+
+
+  }
+
+  delete() {
+
+    const confirm = this.dg.open(ConfirmComponent, {
+      width: '500px',
+      data: {
+        heading: "Confirmation - Employee Delete",
+        message: "Are you sure to Delete folowing Batch? <br> <br>" + this.batch.name
+      }
+    });
+
+    confirm.afterClosed().subscribe(async result => {
+      if (result) {
+        let delstatus: boolean = false;
+        let delmessage: string = "Server Not Found";
+
+        this.cs.delete(this.batch.id).then((responce: [] | undefined) => {
+
+          if (responce != undefined) { // @ts-ignore
+            delstatus = responce['errors'] == "";
+            if (!delstatus) { // @ts-ignore
+              delmessage = responce['errors'];
+            }
+          } else {
+            delstatus = false;
+            delmessage = "Content Not Found"
+          }
+        } ).finally(() => {
+          if (delstatus) {
+            delmessage = "Successfully Deleted";
+            this.batchform.reset();
+            Object.values(this.batchform.controls).forEach(control => { control.markAsTouched(); });
+            this.loadTable("");
+          }
+
+          const stsmsg = this.dg.open(MessageComponent, {
+            width: '500px',
+            data: {heading: "Status - Batch Delete ", message: delmessage}
+          });
+          stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+        });
+      }
+    });
   }
 
 }

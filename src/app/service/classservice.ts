@@ -12,6 +12,7 @@ export class ClassService {
  constructor(private http: HttpClient) { }
 
   async getAll(query:string): Promise<Array<Class>> {
+    console.log(query);
     const classes = await this.http.get<Array<Class>>('http://localhost:8080/classes'+ query).toPromise();
     if(classes == undefined){
       return [];

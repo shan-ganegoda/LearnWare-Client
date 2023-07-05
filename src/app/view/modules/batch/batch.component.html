@@ -97,8 +97,8 @@
           <div id="butpanel">
             <button mat-raised-button (click)="add()" [disabled]="!enaadd">Add</button>
             <button mat-raised-button>Clear</button>
-            <button mat-raised-button (click)=null [disabled]="!enaupd">Update</button>
-            <button mat-raised-button (click)=null [disabled]="!enadel">Delete</button>
+            <button mat-raised-button (click)="update()" [disabled]="!enaupd">Update</button>
+            <button mat-raised-button (click)="delete()" [disabled]="!enadel">Delete</button>
           </div>
 
         </mat-form>
@@ -114,7 +114,36 @@
         <mat-card-title>Batch Search</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content></mat-card-content>
+      <mat-card-content>
+
+        <mat-form [formGroup]="ssearch">
+
+          <mat-form-field appearance="outline">
+            <mat-label>Search by Number</mat-label>
+            <input matInput formControlName="ssnumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Search by BatchName</mat-label>
+            <input matInput formControlName="ssname">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Batch Status</mat-label>
+            <mat-select formControlName="ssstatus">
+              <mat-option [value]="null" selected>Not Selected</mat-option>
+              <mat-option *ngFor="let batchstatus of batchstatuses" [value]="batchstatus.id">{{batchstatus.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div>
+            <button mat-raised-button color="primary" (click)="btnSearchMc()"><mat-icon>search</mat-icon> Search </button>
+            <button mat-raised-button color="primary" (click)="btnSearchClearMc()"><mat-icon>reorder</mat-icon> Clear Search </button>
+          </div>
+
+        </mat-form>
+
+      </mat-card-content>
 
     </mat-card>
   </mat-grid-tile>
@@ -143,7 +172,8 @@
               <mat-form [formGroup]="csearch" class="csearch">
                 <mat-form-field appearance="outline">
                   <mat-label>{{csprompts[i]}}</mat-label>
-                  <input matInput [formControlName]="cscolumn">
+                  <input matInput [formControlName]="cscolumn"
+                  (keyup)="filterTable()" >
                 </mat-form-field>
               </mat-form>
             </mat-header-cell>
@@ -151,7 +181,7 @@
 
           <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
           <mat-header-row *matHeaderRowDef="cscolumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: columns;"></mat-row>
+          <mat-row *matRowDef="let row; columns: columns;" (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"></mat-row>
 
         </mat-table>
 
