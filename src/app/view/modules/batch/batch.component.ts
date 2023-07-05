@@ -63,6 +63,8 @@ export class BatchComponent implements OnInit{
   enaupd:boolean = false;
   enadel:boolean = false;
 
+  selectedrow: any;
+
   constructor(
     private fb:FormBuilder,
     private bt:Batchstatusservice,
@@ -370,6 +372,120 @@ export class BatchComponent implements OnInit{
         this.loadTable("");
       }
     });
+  }
+
+  fillForm(batch: Batch) {
+
+    this.enableButtons(false,true,true);
+
+    this.selectedrow= batch;
+
+    this.batch = JSON.parse(JSON.stringify(batch));
+
+    this.oldbatch = JSON.parse(JSON.stringify(batch));
+
+
+    //@ts-ignore
+    this.batch.course= this.courses.find(c => c.id === this.batch.course.id);
+    //@ts-ignore
+    this.batch.day = this.days.find(d => d.id === this.batch.day.id);
+    //@ts-ignore
+    this.batch.employee = this.employees.find(e => e.id === this.batch.employee.id);
+    //@ts-ignore
+    this.batch.batchstatus = this.batchstatuses.find(bs => bs.id === this.batch.batchstatus.id);
+
+    this.batchform.patchValue(this.batch);
+    this.batchform.markAsPristine();
+
+  }
+
+  getUpdates(): string {
+
+    let updates: string = "";
+    for (const controlName in this.batchform.controls) {
+      const control = this.batchform.controls[controlName];
+      if (control.dirty) {
+        updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
+      }
+    }
+    return updates;
+  }
+
+  update() {
+
+    let errors = this.getErrors();
+
+    if (errors != "") {
+
+      const errmsg = this.dg.open(MessageComponent, {
+        width: '500px',
+        data: {heading: "Errors - Class Update ", message: "You have following Errors <br> " + errors}
+      });
+      errmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+    } else {
+
+      let updates: string = this.getUpdates();
+
+      if (updates != "") {
+
+        let updstatus: boolean = false;
+        let updmessage: string = "Server Not Found";
+
+        const confirm = this.dg.open(ConfirmComponent, {
+          width: '500px',
+          data: {
+            heading: "Confirmation - Class Update",
+            message: "Are you sure to Save folowing Updates? <br> <br>" + updates
+          }
+        });
+        confirm.afterClosed().subscribe(async result => {
+          if (result) {
+            this.batch = this.batchform.getRawValue();
+            this.batch.id = this.oldbatch.id;
+
+            this.bs.update(this.batch).then((responce: [] | undefined) => {
+              if (responce != undefined) { // @ts-ignore
+                updstatus = responce['errors'] == "";
+                //console.log("Upd Sta-" + updstatus);
+                if (!updstatus) { // @ts-ignore
+                  updmessage = responce['errors'];
+                }
+              } else {
+                //console.log("undefined");
+                updstatus = false;
+                updmessage = "Content Not Found"
+              }
+            } ).finally(() => {
+              if (updstatus) {
+                updmessage = "Successfully Updated";
+                this.batchform.reset();
+                Object.values(this.batchform.controls).forEach(control => { control.markAsTouched(); });
+                this.loadTable("");
+              }
+
+              const stsmsg = this.dg.open(MessageComponent, {
+                width: '500px',
+                data: {heading: "Status -Batch Add", message: updmessage}
+              });
+              stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+            });
+          }
+        });
+      }
+      else {
+
+        const updmsg = this.dg.open(MessageComponent, {
+          width: '500px',
+          data: {heading: "Confirmation - Batch Update", message: "Nothing Changed"}
+        });
+        updmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+      }
+    }
+
+
   }
 
 }
