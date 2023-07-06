@@ -59,9 +59,9 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Date Of Registered</mat-label>
-            <input matInput [matDatepicker]="doregistered" formControlName="doregistered">
-            <mat-datepicker-toggle matIconSuffix [for]="doregistered"></mat-datepicker-toggle>
-            <mat-datepicker #doregistered></mat-datepicker>
+            <input matInput [matDatepicker]="doregisterd" formControlName="doregisterd">
+            <mat-datepicker-toggle matIconSuffix [for]="doregisterd"></mat-datepicker-toggle>
+            <mat-datepicker #doregisterd></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -168,7 +168,7 @@
 
                       <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
                       <mat-header-row *matHeaderRowDef="cscolumns"></mat-header-row>
-                      <mat-row *matRowDef="let row; columns: columns;" ></mat-row>
+                      <mat-row *matRowDef="let row; columns: columns;" (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"></mat-row>
             <!--          (click)="fillForm(row)" [ngClass]="{'selected-row': row === selectedrow}"-->
 
         </mat-table>
