@@ -31,25 +31,26 @@ export class StudentComponent implements OnInit{
   cscolumns:string[] = ['csname','csphoneno','csguardianname','csdob','csstudentstatus'];
   csprompts: string[] = ['Search by Name', 'Search by Mobile', 'Search by Guardian','Search by DOB', 'Search by Status'];
 
-  data!: MatTableDataSource<Student>;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
   imageurl: string = '';
 
   uiassist: UiAssist;
 
   regexes: any;
+  selectedrow: any;
 
   student !: Student;
   oldstudent !: Student;
 
-  students !: Array<Student>;
-  studentstatuses !: Array<Studentstatus>;
-  guardiantypes !: Array<Guardiantype>;
+  students : Array<Student> = [];
+  studentstatuses : Array<Studentstatus> = [];
+  guardiantypes : Array<Guardiantype> = [];
 
   public csearch!: FormGroup;
   public ssearch!: FormGroup;
   public form!: FormGroup;
+
+  data!: MatTableDataSource<Student>;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   enaadd:boolean = false;
   enaupd:boolean = false;
@@ -88,7 +89,7 @@ export class StudentComponent implements OnInit{
       "dob": new FormControl('', [Validators.required]),
       "gaurdianname": new FormControl('', [Validators.required]),
       "description": new FormControl('', [Validators.required]),
-      "doregistered": new FormControl('', [Validators.required]),
+      "doregisterd": new FormControl('', [Validators.required]),
       "gaurdiantype": new FormControl('',[Validators.required] ),
       "studentstatus": new FormControl('',[Validators.required] ),
     }, {updateOn: 'change'});
@@ -140,6 +141,47 @@ export class StudentComponent implements OnInit{
       });
   }
 
+  createForm(){
+    this.form.controls['fullname'].setValidators([Validators.required]);
+    this.form.controls['name'].setValidators([Validators.required]);
+    this.form.controls['callingname'].setValidators([Validators.required]);
+    this.form.controls['address'].setValidators([Validators.required, Validators.pattern(this.regexes['description']['regex'])]);
+    this.form.controls['phoneno'].setValidators([Validators.required]);
+    this.form.controls['dob'].setValidators([Validators.required]);
+    this.form.controls['gaurdianname'].setValidators([Validators.required]);
+    this.form.controls['emergencyno'].setValidators([Validators.required]);
+    this.form.controls['description'].setValidators([Validators.required]);
+    this.form.controls['doregisterd'].setValidators([Validators.required]);
+    this.form.controls['gaurdiantype'].setValidators([Validators.required]);
+    this.form.controls['studentstatus'].setValidators([Validators.required]);
+
+    Object.values(this.form.controls).forEach( control => { control.markAsTouched(); } );
+
+    for (const controlName in this.form.controls) {
+      const control = this.form.controls[controlName];
+      control.valueChanges.subscribe(value => {
+          // @ts-ignore
+          if (controlName == "dob" || controlName == "doregistered")
+            value = this.dp.transform(new Date(value), 'yyyy-MM-dd');
+
+          if (this.oldstudent != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.student[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
+
+    this.enableButtons(true,false,false);
+  }
+
   filterTable(): void {
 
     const cserchdata = this.csearch.getRawValue();
@@ -156,46 +198,6 @@ export class StudentComponent implements OnInit{
 
   }
 
-  createForm(){
-    this.form.controls['fullname'].setValidators([Validators.required]);
-    this.form.controls['name'].setValidators([Validators.required]);
-    this.form.controls['callingname'].setValidators([Validators.required]);
-    this.form.controls['address'].setValidators([Validators.required, Validators.pattern(this.regexes['description']['regex'])]);
-    this.form.controls['phoneno'].setValidators([Validators.required]);
-    this.form.controls['dob'].setValidators([Validators.required]);
-    this.form.controls['gaurdianname'].setValidators([Validators.required]);
-    this.form.controls['emergencyno'].setValidators([Validators.required]);
-    this.form.controls['description'].setValidators([Validators.required]);
-    this.form.controls['doregistered'].setValidators([Validators.required]);
-    this.form.controls['gaurdiantype'].setValidators([Validators.required]);
-    this.form.controls['studentstatus'].setValidators([Validators.required]);
-
-    Object.values(this.form.controls).forEach( control => { control.markAsTouched(); } );
-
-    for (const controlName in this.form.controls) {
-      const control = this.form.controls[controlName];
-      control.valueChanges.subscribe(value => {
-          // @ts-ignore
-          if (controlName == "dob" || controlName == "doregistered")
-            value = this.dp.transform(new Date(value), 'yyyy-MM-dd');
-
-          if (this.oldstudent != undefined && control.valid) {
-            // @ts-ignore
-            if (value === this.class[controlName]) {
-              control.markAsPristine();
-            } else {
-              control.markAsDirty();
-            }
-          } else {
-            control.markAsPristine();
-          }
-        }
-      );
-
-    }
-
-    this.enableButtons(true,false,false);
-  }
 
   getErrors(): string {
 
@@ -341,10 +343,119 @@ export class StudentComponent implements OnInit{
     }
   }
 
+  fillForm(student: Student) {
+
+    this.enableButtons(false,true,true);
+
+    this.selectedrow= student;
+
+    this.student = JSON.parse(JSON.stringify(student));
+
+    this.oldstudent = JSON.parse(JSON.stringify(student));
 
 
-  getUpdates(){ }
-  update(){ }
+    //@ts-ignore
+    this.student.gaurdiantype = this.guardiantypes.find(gt => gt.id === this.student.gaurdiantype.id);
+    //@ts-ignore
+    this.student.studentstatus = this.studentstatuses.find(ss => ss.id === this.student.studentstatus.id);
+    console.log(this.student);
+
+    this.form.patchValue(this.student);
+    this.form.markAsPristine();
+
+  }
+
+
+
+  getUpdates(): string {
+
+    let updates: string = "";
+    for (const controlName in this.form.controls) {
+      const control = this.form.controls[controlName];
+      if (control.dirty) {
+        updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
+      }
+    }
+    return updates;
+  }
+
+  update() {
+
+    let errors = this.getErrors();
+
+    if (errors != "") {
+
+      const errmsg = this.dg.open(MessageComponent, {
+        width: '500px',
+        data: {heading: "Errors - Student Update ", message: "You have following Errors <br> " + errors}
+      });
+      errmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+    } else {
+
+      let updates: string = this.getUpdates();
+
+      if (updates != "") {
+
+        let updstatus: boolean = false;
+        let updmessage: string = "Server Not Found";
+
+        const confirm = this.dg.open(ConfirmComponent, {
+          width: '500px',
+          data: {
+            heading: "Confirmation - Student Update",
+            message: "Are you sure to Save folowing Updates? <br> <br>" + updates
+          }
+        });
+        confirm.afterClosed().subscribe(async result => {
+          if (result) {
+            //console.log("EmployeeService.update()");
+            this.student = this.form.getRawValue();
+            this.student.id = this.oldstudent.id;
+
+            this.ss.update(this.student).then((responce: [] | undefined) => {
+              if (responce != undefined) { // @ts-ignore
+                // @ts-ignore
+                updstatus = responce['errors'] == "";
+                if (!updstatus) {
+                  // @ts-ignore
+                  updmessage = responce['errors'];
+                }
+              } else {
+                updstatus = false;
+                updmessage = "Content Not Found"
+              }
+            } ).finally(() => {
+              if (updstatus) {
+                updmessage = "Successfully Updated";
+                this.form.reset();
+                Object.values(this.form.controls).forEach(control => { control.markAsTouched(); });
+                this.loadTable("");
+              }
+
+              const stsmsg = this.dg.open(MessageComponent, {
+                width: '500px',
+                data: {heading: "Status -Student Add", message: updmessage}
+              });
+              stsmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+            });
+          }
+        });
+      }
+      else {
+
+        const updmsg = this.dg.open(MessageComponent, {
+          width: '500px',
+          data: {heading: "Confirmation - Student Update", message: "Nothing Changed"}
+        });
+        updmsg.afterClosed().subscribe(async result => { if (!result) { return; } });
+
+      }
+    }
+
+
+  }
 
   delete(){}
 
