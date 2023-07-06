@@ -28,13 +28,13 @@ export class Student {
 
   public doregistered !: string;
 
-  public guardiantype !: Guardiantype;
+  public gaurdiantype !: Guardiantype;
 
   public studentstatus!: Studentstatus;
 
   constructor(id:number, fullname:string, name:string, callingname:string,
               address:string, phoneno:string, dob:string, gaurdianname:string, emergencyno:string,
-              description:string, doregistered:string, guardiantype:Guardiantype, studentstatus:Studentstatus ) {
+              description:string, doregistered:string, gaurdiantype:Guardiantype, studentstatus:Studentstatus ) {
    this.id = id;
    this.fullname = fullname;
    this.name = name;
@@ -48,7 +48,7 @@ export class Student {
    this.description = description;
    this.description = description;
    this.doregistered = doregistered;
-   this.guardiantype = guardiantype;
+   this.gaurdiantype = gaurdiantype;
    this.studentstatus = studentstatus;
   }
 }
