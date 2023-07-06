@@ -1,3 +1,6 @@
+![image](https://github.com/shan-ganegoda/LearnWare-Client/assets/112312002/4d18c32f-c1b0-4cec-bddf-aad39788b4be)
+
+
 # EarthUni
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.1.4.
